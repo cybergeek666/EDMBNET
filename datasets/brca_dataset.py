@@ -1,3 +1,4 @@
+```python
 import os
 import numpy as np
 import torch
@@ -9,15 +10,15 @@ from configuration.config_brca_mogonet import args
 class BRCA_Dataset(Dataset):
     def __init__(self, data_path, view_list, mode='train', miss_modal=None, fill=0, transform=None):
         """
-        BRCA 多模态癌症亚型分类数据集
+        BRCA Multimodal Cancer Subtype Classification Dataset
 
         Args:
-            data_path: 数据根目录路径
-            view_list: 模态列表，如 [1, 2, 3]
-            mode: 'train' 或 'test'
-            miss_modal: 缺失模态的索引，如果为 None 则使用所有模态
-            fill: 缺失模态填充值
-            transform: 数据变换
+            data_path: Root directory path for data
+            view_list: List of modalities, e.g., [1, 2, 3]
+            mode: 'train' or 'test'
+            miss_modal: Indices of missing modalities, if None then use all modalities
+            fill: Fill value for missing modalities
+            transform: Data transformation
         """
         self.data_path = data_path
         self.view_list = view_list
@@ -26,66 +27,65 @@ class BRCA_Dataset(Dataset):
         self.fill = fill
         self.transform = transform
 
-        # 加载数据
+        # Load data
         self.data_list, self.labels = self._load_data()
 
-        # 数据预处理 - 标准化
+        # Data preprocessing - Standardization
         self._preprocess_data()
 
-        # # 模拟模态缺失
+        # # Simulate modality missing
         # if self.miss_modal is not None:
         #     self._apply_modality_dropout()
 
     def _load_data(self):
-        """加载数据和标签"""
+        """Load data and labels"""
         data_list = []
-        view_list = [1, 2, 3]  # 三个模态
+        view_list = [1, 2, 3]  # Three modalities
         if args.miss_modal == 0:
-            # 使用所有三个模态
+            # Use all three modalities
             view_list = [1, 2, 3]
 
         elif args.miss_modal == int(1):
-            # 缺失模态1，使用模态2和3
+            # Missing modality 1, use modalities 2 and 3
             view_list = [-1, 2, 3]
 
         elif args.miss_modal == 2:
-            # 缺失模态2，使用模态1和3
-            view_list = [1,-1, 3]
+            # Missing modality 2, use modalities 1 and 3
+            view_list = [1, -1, 3]
 
         elif args.miss_modal == 3:
-            # 缺失模态3，使用模态1和2
+            # Missing modality 3, use modalities 1 and 2
             view_list = [1, 2, -1]
 
         elif args.miss_modal == 4:
-            # 缺失模态3，使用模态1和2
+            # Missing modality 3, use modalities 1 and 2
             view_list = [1, -1, -1]
 
         elif args.miss_modal == 5:
-            # 缺失模态3，使用模态1和2
+            # Missing modality 3, use modalities 1 and 2
             view_list = [-1, 2, -1]
 
         elif args.miss_modal == 6:
-            # 缺失模态3，使用模态1和2
+            # Missing modality 3, use modalities 1 and 2
             view_list = [-1, -1, 3]
         else:
-            # 默认使用所有模态
+            # Default: use all modalities
             used_modals = [1, 2, 3]
 
-
-        # 加载标签 - 参考 MOGONET 的方式
+        # Load labels - referencing MOGONET's method
         if self.mode == 'train':
             label_file = os.path.join(self.data_path, 'labels_tr.csv')
         else:
             label_file = os.path.join(self.data_path, 'labels_te.csv')
 
-        # 使用更健壮的方法加载标签
+        # Use a more robust method to load labels
         labels = self._load_csv_file(label_file)
         labels = labels.astype(int)
 
-        # 加载各模态数据 - 参考 MOGONET 的方式
+        # Load each modality's data - referencing MOGONET's method
         for view in view_list:
             if view == -1:
-                data = torch.zeros([612,1000])
+                data = torch.zeros([612, 1000])
                 data_list.append(data)
                 continue
             if self.mode == 'train':
@@ -100,57 +100,57 @@ class BRCA_Dataset(Dataset):
         return data_list, labels
 
     def _preprocess_data(self):
-        """数据预处理 - 标准化"""
+        """Data preprocessing - Standardization"""
         from sklearn.preprocessing import StandardScaler
 
-        print("进行数据预处理...")
+        print("Performing data preprocessing...")
         self.scalers = []
 
         for i, data in enumerate(self.data_list):
             scaler = StandardScaler()
-            # 重塑数据为2D进行标准化
+            # Reshape data to 2D for standardization
             original_shape = data.shape
             data_2d = data.reshape(-1, original_shape[-1])
 
-            # 标准化
+            # Standardize
             data_normalized = scaler.fit_transform(data_2d)
 
-            # 恢复原始形状
+            # Restore original shape
             self.data_list[i] = data_normalized.reshape(original_shape)
 
             self.scalers.append(scaler)
-            print(f"  模态{i+1}标准化完成，形状: {self.data_list[i].shape}")
+            print(f"  Modality {i+1} standardization completed, shape: {self.data_list[i].shape}")
 
     def _load_csv_file(self, file_path):
-        """简化的CSV文件加载方法，参考原始MOGONET代码"""
-        print(f"正在加载文件: {file_path}")
+        """Simplified CSV file loading method, referencing original MOGONET code"""
+        print(f"Loading file: {file_path}")
         
-        # 首先尝试直接加载（原始MOGONET方法）
+        # First try direct loading (original MOGONET method)
         try:
             data = np.loadtxt(file_path, delimiter=',')
-            print(f"直接加载成功，数据形状: {data.shape}")
+            print(f"Direct loading successful, data shape: {data.shape}")
             return data
         except UnicodeDecodeError as e:
-            print(f"UTF-8解码失败: {e}")
-            print("尝试使用latin-1编码...")
+            print(f"UTF-8 decoding failed: {e}")
+            print("Attempting latin-1 encoding...")
             
             try:
                 data = np.loadtxt(file_path, delimiter=',', encoding='latin-1')
-                print(f"latin-1编码成功，数据形状: {data.shape}")
+                print(f"latin-1 encoding successful, data shape: {data.shape}")
                 return data
             except Exception as e2:
-                print(f"latin-1编码失败: {e2}")
-                raise ValueError(f"无法加载文件 {file_path}: {e2}")
+                print(f"latin-1 encoding failed: {e2}")
+                raise ValueError(f"Cannot load file {file_path}: {e2}")
         except Exception as e:
-            print(f"其他错误: {e}")
-            raise ValueError(f"无法加载文件 {file_path}: {e}")
+            print(f"Other error: {e}")
+            raise ValueError(f"Cannot load file {file_path}: {e}")
 
     def _apply_modality_dropout(self):
-        """应用模态缺失"""
+        """Apply modality missing"""
         if self.miss_modal is None:
             return
 
-        # 将缺失模态的数据替换为填充值
+        # Replace missing modality data with fill value
         for idx in self.miss_modal:
             if idx < len(self.data_list):
                 self.data_list[idx] = np.full_like(self.data_list[idx], self.fill)
@@ -159,13 +159,13 @@ class BRCA_Dataset(Dataset):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        """获取单个样本"""
-        # 获取各模态数据
+        """Get a single sample"""
+        # Get each modality's data
         modal_data = {}
         for i, data in enumerate(self.data_list):
             modal_data[f'modal_{i+1}'] = data[idx]
 
-        # 获取标签
+        # Get label
         label = self.labels[idx]
 
         sample = {
@@ -175,7 +175,7 @@ class BRCA_Dataset(Dataset):
             'label': label
         }
 
-        # 应用变换
+        # Apply transformation
         if self.transform:
             sample = self.transform(sample)
 
@@ -184,7 +184,7 @@ class BRCA_Dataset(Dataset):
 
 def create_brca_dataloader(data_path, view_list, batch_size=64, mode='train',
                           miss_modal=None, shuffle=True, num_workers=0):
-    """创建 BRCA 数据加载器"""
+    """Create BRCA data loader"""
 
     dataset = BRCA_Dataset(
         data_path=data_path,
@@ -203,3 +203,4 @@ def create_brca_dataloader(data_path, view_list, batch_size=64, mode='train',
         drop_last=True,
         collate_fn=custom_collate_fn
     )
+```
