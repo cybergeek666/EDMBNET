@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-BRCA 癌症亚型分类训练启动脚本
+BRCA Cancer subtype classification
 """
 
 import sys
@@ -8,20 +8,20 @@ import os
 sys.path.append('.')
 
 def run_brca_training():
-    """启动 BRCA 训练"""
+    """START EDMBNET training"""
     print("=" * 60)
-    print("BRCA 多模态癌症亚型分类训练")
+    print("BRCA classification training")
     print("=" * 60)
     print()
 
-    print("检查数据集...")
+    print("check datasets...")
     data_path = r'/home/amax/4t/amax/CGLIU/CODE/3/data/BRCA'
 
     if not os.path.exists(data_path):
-        print(f"错误: 数据集路径不存在: {data_path}")
+        print(f"error:path does not exist {data_path}")
         return False
 
-    # 检查必需的文件
+    
     required_files = [
         '1_tr.csv', '2_tr.csv', '3_tr.csv',
         '1_te.csv', '2_te.csv', '3_te.csv',
@@ -34,39 +34,39 @@ def run_brca_training():
             missing_files.append(file)
 
     if missing_files:
-        print(f"错误: 缺少以下文件: {missing_files}")
+        print(f"error: missing files: {missing_files}")
         return False
 
-    print("✓ 数据集检查通过")
+    print("✓files checked")
     print()
 
-    print("启动训练...")
+    print("START training...")
     try:
         from src.brca_multi_main import brca_main
         from configuration.config_brca_multi import args
 
-        print("训练配置:")
-        print(f"  - 分类数量: {args.class_num}")
-        print(f"  - 批次大小: {args.batch_size}")
-        print(f"  - 学习率: {args.lr}")
-        print(f"  - 训练轮数: {args.train_epoch}")
+        print("config:")
+        print(f"  - class_num: {args.class_num}")
+        print(f"  - batch_size: {args.batch_size}")
+        print(f"  - lr: {args.lr}")
+        print(f"  - train_epoch: {args.train_epoch}")
         print()
 
-        # 启动训练
+       
         brca_main(args)
 
         return True
 
     except Exception as e:
-        print(f"训练启动失败: {str(e)}")
+        print(f"START failed: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
 
 
 def test_system():
-    """测试系统集成"""
-    print("运行系统集成测试...")
+    ""testing"""
+    print("run test...")
     print()
 
     try:
@@ -74,48 +74,45 @@ def test_system():
         success = test_main()
         return success
     except Exception as e:
-        print(f"系统测试失败: {str(e)}")
+        print(f"TEST failed: {str(e)}")
         import traceback
         traceback.print_exc()
         return False
 
 
 def main():
-    """主函数"""
-    print("欢迎使用 BRCA 癌症亚型分类系统")
+    "
+    print("Cancer subtype classification")
     print()
 
-    # 询问用户操作
-    print("请选择操作:")
-    print("1. 运行系统测试")
-    print("2. 启动完整训练")
-    print("3. 退出")
+    
 
-    choice = input("请输入选择 (1-3): ").strip()
+    choice = input("Please type (1-3): ").strip()
 
     if choice == '1':
         print()
         success = test_system()
         if success:
-            print("\n✓ 系统测试通过，可以开始训练")
+            print("\n✓ system checked")
         else:
-            print("\n✗ 系统测试失败，请检查代码和数据")
+            print("\n✗ failed")
 
     elif choice == '2':
         print()
         success = run_brca_training()
         if success:
-            print("\n✓ 训练完成")
+            print("\n✓ training complete")
         else:
-            print("\n✗ 训练启动失败")
+            print("\n✗ failure")
 
     elif choice == '3':
-        print("退出系统")
+        print("Exist")
         return
 
     else:
-        print("无效选择，请重新运行脚本")
+        print("invalid selection")
 
 
 if __name__ == '__main__':
     main()
+
