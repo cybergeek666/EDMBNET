@@ -34,7 +34,7 @@ def calc_accuracy_multi(model, loader, verbose=False, hter=False):
     """
     mode_saved = model.training
     model.train(False)
-    # 强制使用CPU
+   
     device = torch.device('cpu')
     model.to(device)
     outputs_full = []
@@ -46,7 +46,7 @@ def calc_accuracy_multi(model, loader, verbose=False, hter=False):
             batch_sample['image_depth'], batch_sample[
             'binary_label']
 
-        # 强制使用CPU - 张量已经在CPU上
+       
         pass
 
         with torch.no_grad():
@@ -81,7 +81,7 @@ def calc_accuracy_multi(model, loader, verbose=False, hter=False):
                 else:
                     spoofing_right += 1
             else:
-                # 错误
+                
                 if label_arr[i] == 1:
                     living_wrong += 1
                 else:
@@ -116,7 +116,7 @@ def calc_accuracy_kd_patch_feature(model, loader, args, verbose=False, hter=Fals
     """
     mode_saved = model.training
     model.train(False)
-    # 强制使用CPU
+   
     device = torch.device('cpu')
     model.to(device)
     outputs_full = []
@@ -128,7 +128,7 @@ def calc_accuracy_kd_patch_feature(model, loader, args, verbose=False, hter=Fals
             batch_sample['image_depth'], batch_sample[
             'binary_label']
 
-        # 强制使用CPU - 张量已经在CPU上
+       
         pass
 
         with torch.no_grad():
@@ -164,7 +164,7 @@ def calc_accuracy_kd_patch_feature(model, loader, args, verbose=False, hter=Fals
                 else:
                     spoofing_right += 1
             else:
-                # 错误
+                
                 if label_arr[i] == 1:
                     living_wrong += 1
                 else:
@@ -191,7 +191,7 @@ def calc_accuracy_kd_patch_feature(model, loader, args, verbose=False, hter=Fals
 
 def train_base_multi(model, cost, optimizer, train_loader, test_loader, args):
     '''
-    适用于多模态分类的基础训练函数
+    
     :param model:
     :param cost:
     :param optimizer:
@@ -272,7 +272,7 @@ def train_base_multi(model, cost, optimizer, train_loader, test_loader, args):
                 'binary_label']
             if epoch == 0:
                 continue
-            # 强制使用CPU - 张量已经在CPU上
+           
             pass
 
             # optimizer.zero_grad()
@@ -330,7 +330,7 @@ def train_base_multi(model, cost, optimizer, train_loader, test_loader, args):
 
         #  save log
         with open(log_dir, 'a+', newline='') as f:
-            # 训练结果
+            
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
@@ -341,7 +341,7 @@ def train_base_multi(model, cost, optimizer, train_loader, test_loader, args):
 
 def train_base_multi_auxi(model, cost, optimizer, train_loader, test_loader, args):
     '''
-    适用于多模态分类的基础训练函数
+    
     :param model:
     :param cost:
     :param optimizer:
@@ -424,7 +424,7 @@ def train_base_multi_auxi(model, cost, optimizer, train_loader, test_loader, arg
                 'binary_label']
             if epoch == 0:
                 continue
-            # 强制使用CPU - 张量已经在CPU上
+        
             pass
 
             # optimizer.zero_grad()
@@ -513,7 +513,7 @@ def train_base_multi_auxi(model, cost, optimizer, train_loader, test_loader, arg
 
         #  save log
         with open(log_dir, 'a+', newline='') as f:
-            # 训练结果
+            
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
@@ -561,22 +561,21 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
     criterionCls = cost_dict['criterionCls']
     criterionKD = cost_dict['criterionKD']
 
-    # 强制使用CPU
+   
     mmd_loss = MMD_loss()
 
-    # 强制使用CPU
+    
     dad_loss = DAD()
 
-    # 强制使用CPU
+  
     sp_loss = SP()
 
-    # 强制使用CPU
     at_loss = AT(p=2)
 
-    # 强制使用CPU
+    
     bce_loss = nn.BCELoss()
 
-    # 强制使用CPU
+    
     mse_loss = nn.MSELoss()
 
     #  learning rate decay
@@ -637,7 +636,7 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
 
             data_read_time = (datetime.datetime.now() - start)
 
-            # 强制使用CPU - 张量已经在CPU上
+            
             pass
 
             optimizer.zero_grad()
@@ -650,7 +649,7 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
             time_forward = datetime.datetime.now() - start
             # print("time_forward:", time_forward.total_seconds())
 
-            # logits蒸馏损失
+           
             # if args.kd_mode in ['logits', 'st']:
             #     # patch_loss = mmd_loss(student_patch_out, teacher_patch_out.detach())
             #     # patch_loss = patch_loss.cuda()
@@ -664,7 +663,7 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
             #     kd_logits_loss = 0
             #     print("kd_Loss error")
 
-            # feature 蒸馏损失
+          
             # student_layer3 = torch.mean(student_layer3, dim=1)
             # teacher_layer3 = torch.mean(teacher_layer3, dim=1)
             # kd_feature_loss = mse_loss(student_layer3, teacher_layer3)
@@ -674,7 +673,7 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
             kd_feature_loss_2 = sp_loss(student_layer4, teacher_layer4)
             kd_feature_loss = kd_feature_loss_2
 
-            # 分类损失
+            
 
             fusion_loss = criterionCls(student_whole_out, target)
 
@@ -690,7 +689,7 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
 
             cls_loss = fusion_loss + x_rgb_loss + x_depth_loss + x_ir_loss
 
-            # cls_loss已经在CPU上
+            
 
             loss = cls_loss + kd_feature_loss * args.lambda_kd_feature
 
@@ -764,7 +763,7 @@ def train_knowledge_distill_patch_feature_auxi(net_dict, cost_dict, optimizer, t
 
         #  save log
         with open(log_dir, 'a+', newline='') as f:
-            # 训练结果
+            
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
@@ -881,7 +880,7 @@ def train_knowledge_distill_patch_feature_auxi_weak(net_dict, cost_dict, optimiz
 
             data_read_time = (datetime.datetime.now() - start)
 
-            # 强制使用CPU - 张量已经在CPU上
+           
             pass
 
             optimizer.zero_grad()
@@ -1051,7 +1050,7 @@ def train_knowledge_distill_patch_feature_auxi_weak(net_dict, cost_dict, optimiz
 
         #  save log
         with open(log_dir, 'a+', newline='') as f:
-            # 训练结果
+            
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
@@ -1095,22 +1094,22 @@ def train_knowledge_distill_patch_feature(net_dict, cost_dict, optimizer, train_
     criterionCls = cost_dict['criterionCls']
     criterionKD = cost_dict['criterionKD']
 
-    # 强制使用CPU
+    
     mmd_loss = MMD_loss()
 
-    # 强制使用CPU
+   
     dad_loss = DAD()
 
-    # 强制使用CPU
+    
     sp_loss = SP()
 
-    # 强制使用CPU
+    
     at_loss = AT(p=2)
 
-    # 强制使用CPU
+    
     bce_loss = nn.BCELoss()
 
-    # 强制使用CPU
+    
     mse_loss = nn.MSELoss()
 
     #  learning rate decay
@@ -1171,7 +1170,7 @@ def train_knowledge_distill_patch_feature(net_dict, cost_dict, optimizer, train_
 
             data_read_time = (datetime.datetime.now() - start)
 
-            # 强制使用CPU - 张量已经在CPU上
+           
             pass
 
             optimizer.zero_grad()
@@ -1183,7 +1182,7 @@ def train_knowledge_distill_patch_feature(net_dict, cost_dict, optimizer, train_
             time_forward = datetime.datetime.now() - start
             # print("time_forward:", time_forward.total_seconds())
 
-            # logits蒸馏损失
+          
             # if args.kd_mode in ['logits', 'st']:
             #     # patch_loss = mmd_loss(student_patch_out, teacher_patch_out.detach())
             #     # patch_loss = patch_loss.cuda()
@@ -1197,7 +1196,7 @@ def train_knowledge_distill_patch_feature(net_dict, cost_dict, optimizer, train_
             #     kd_logits_loss = 0
             #     print("kd_Loss error")
 
-            # feature 蒸馏损失
+            
             # student_layer3 = torch.mean(student_layer3, dim=1)
             # teacher_layer3 = torch.mean(teacher_layer3, dim=1)
             # kd_feature_loss = mse_loss(student_layer3, teacher_layer3)
@@ -1222,10 +1221,10 @@ def train_knowledge_distill_patch_feature(net_dict, cost_dict, optimizer, train_
 
             # print(H_teacher_prob)
 
-            # 分类损失
+           
             cls_loss = criterionCls(student_whole_out, target)
 
-            # cls_loss已经在CPU上
+            
 
             loss = cls_loss + kd_feature_loss * args.lambda_kd_feature
 
@@ -1299,7 +1298,7 @@ def train_knowledge_distill_patch_feature(net_dict, cost_dict, optimizer, train_
 
         #  save log
         with open(log_dir, 'a+', newline='') as f:
-            # 训练结果
+            
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
@@ -1345,7 +1344,7 @@ def train_knowledge_distill_patch_feature_cefa(net_dict, cost_dict, optimizer, t
     criterionCls = cost_dict['criterionCls']
     criterionKD = cost_dict['criterionKD']
 
-    # 强制使用CPU
+    
     mmd_loss = MMD_loss()
 
     if torch.cuda.is_available():
@@ -1353,16 +1352,16 @@ def train_knowledge_distill_patch_feature_cefa(net_dict, cost_dict, optimizer, t
     else:
         pkt_loss = PKTCosSim()
 
-    # 强制使用CPU
+   
     sp_loss = SP()
 
-    # 强制使用CPU
+    
     bce_loss = nn.BCELoss()
 
-    # 强制使用CPU
+   
     mse_loss = nn.MSELoss()
 
-    # 强制使用CPU
+   
     at_loss = AT(p=2)
 
     #  learning rate decay
@@ -1427,7 +1426,7 @@ def train_knowledge_distill_patch_feature_cefa(net_dict, cost_dict, optimizer, t
                 multi_sample['image_depth'], multi_sample[
                 'binary_label']
 
-            # 强制使用CPU - 张量已经在CPU上
+           
             pass
             label = target
 
@@ -1442,13 +1441,13 @@ def train_knowledge_distill_patch_feature_cefa(net_dict, cost_dict, optimizer, t
             kd_feature_loss_2 = at_loss(student_layer4, teacher_layer4)
             kd_feature_loss = kd_feature_loss_1 + kd_feature_loss_2
 
-            # 分类损失
+            
             if args.student_data == 'multi_rgb':
                 cls_loss = criterionCls(student_whole_out, target)
             else:
                 cls_loss = criterionCls(student_whole_out, label)
 
-            # cls_loss已经在CPU上
+           
 
             loss = cls_loss + kd_feature_loss
 
@@ -1521,7 +1520,7 @@ def train_knowledge_distill_patch_feature_cefa(net_dict, cost_dict, optimizer, t
 
         #  save log
         with open(log_dir, 'a+', newline='') as f:
-            # 训练结果
+           
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
