@@ -7,8 +7,8 @@ Dataset Description
 Dataset: BRCA (Breast Cancer) multimodal dataset
 Number of modalities: 3 modalities
 Classification task: 5-class cancer subtype classification
-Data format: CSV files, referencing the MOGONET-main/BRCA dataset
-Data path: C:\Users\Tao Xuefeng\Desktop\GAN\MOGONET-main\BRCA
+Data format: CSV files
+Data path: C:\Users\C.G Liu\Desktop\EDMBNET\BRCA
 
 edANet/classification/
 ├── datasets/
