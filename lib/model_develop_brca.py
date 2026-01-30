@@ -12,9 +12,7 @@ from lib.model_develop_utils import GradualWarmupScheduler
 
 
 def calc_accuracy_brca(model, loader, verbose=False):
-    """
-    计算 BRCA 模型的准确率
-    """
+   
     mode_saved = model.training
     model.train(False)
     device = torch.device('cpu')
@@ -24,11 +22,11 @@ def calc_accuracy_brca(model, loader, verbose=False):
     labels_full = []
 
     for batch_data, batch_labels in tqdm(iter(loader), desc="Full forward pass", total=len(loader), disable=not verbose):
-        # 解包数据
-        modal_data = batch_data  # 这是包含三个模态数据的列表
+      
+        modal_data = batch_data  
 
         with torch.no_grad():
-            # 将每个模态的数据转换为张量
+          
             modal_1 = torch.FloatTensor(modal_data[0]).to(device)
             modal_2 = torch.FloatTensor(modal_data[1]).to(device)
             modal_3 = torch.FloatTensor(modal_data[2]).to(device)
@@ -53,12 +51,10 @@ def calc_accuracy_brca(model, loader, verbose=False):
 
 
 def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, scheduler=None, args=None):
-    """
-    适用于 BRCA 多模态分类的基础训练函数
-    """
+  
     print(args)
 
-    # 初始化计时器
+    
     start = time.time()
 
     if not os.path.exists(args.model_root):
@@ -69,7 +65,7 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
     models_dir = args.model_root + '/' + args.name + '.pt'
     log_dir = args.log_root + '/' + args.name + '.csv'
 
-    # 保存参数
+    
     with open(log_dir, 'a+', newline='') as f:
         my_writer = csv.writer(f)
         args_dict = vars(args)
@@ -77,7 +73,7 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
             my_writer.writerow([key, value])
         f.close()
 
-    # 学习率衰减
+  
     if args.lr_decrease == 'cos':
         print("lrcos is using")
         cos_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.train_epoch + 20, eta_min=0)
@@ -97,7 +93,7 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
         if args.lr_warmup:
             scheduler_warmup = GradualWarmupScheduler(args, optimizer, multiplier=1)
 
-    # 训练初始化
+   
     epoch_num = args.train_epoch
     log_interval = args.log_interval
     save_interval = args.save_interval
@@ -117,55 +113,53 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
             epoch = state_read['Epoch']
             print("retaining")
 
-    # 训练循环
+    
     while epoch < epoch_num:
         model.train()
-        # 临时调试代码
+      
         # for i, batch in enumerate(train_loader):
         #     print(f"Batch type: {type(batch)}")
         #     print(f"Batch length: {len(batch)}")
         #     print(batch)
-        #     if i >= 1:  # 只看第一个batch
+        #     if i >= 1:  
         #         break
 
-        # 然后根据实际情况调整解包
+      
         for batch_idx, (batch_data, target) in enumerate(
                 tqdm(train_loader, desc="Epoch {}/{}".format(epoch, epoch_num))):
 
             batch_num += 1
 
-            # 解包数据
+           
             modal_data = batch_data
 
-            # 清零梯度
+         
             for p in model.parameters():
                 p.grad = None
 
             model.args.epoch = epoch
 
-            # 将数据转换为张量并确保在正确的设备上
+           
             device = next(model.parameters()).device
             modal_1 = torch.FloatTensor(modal_data[0]).to(device)
             modal_2 = torch.FloatTensor(modal_data[1]).to(device)
             modal_3 = torch.FloatTensor(modal_data[2]).to(device)
 
-            # 前向传播
+        
             output = model(modal_1, modal_2, modal_3)
             if isinstance(output, tuple):
                 output = output[0]
 
-            # 计算损失
             target_tensor = torch.LongTensor(target).to(device)
             loss = cost(output, target_tensor)
             train_loss += loss.item()
             loss.backward()
             optimizer.step()
 
-        # 测试
+       
         model.eval()
         accuracy_test, true_labels, pred_labels = calc_accuracy_brca(model, loader=test_loader, verbose=True)
 
-        # 计算详细的分类指标
         f1_macro = f1_score(true_labels, pred_labels, average='macro')
         f1_weighted = f1_score(true_labels, pred_labels, average='weighted')
 
@@ -185,7 +179,7 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
 
         train_loss = 0
 
-        # 学习率调度
+     
         if args.lr_decrease:
             if args.lr_warmup:
                 scheduler_warmup.step(epoch=epoch)
@@ -194,7 +188,6 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
         if epoch < 10:
             print(epoch, optimizer.param_groups[0]['lr'])
 
-        # 保存模型和参数
         if epoch % save_interval == 0:
             train_state = {
                 "Epoch": epoch,
@@ -205,13 +198,11 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
             models_dir = args.model_root + '/' + args.name + '.pt'
             torch.save(train_state, models_dir)
 
-        # 保存日志
         with open(log_dir, 'a+', newline='') as f:
             my_writer = csv.writer(f)
             my_writer.writerow(log_list)
             log_list = []
 
-        # 学习率调度
         if scheduler is not None:
             scheduler.step()
 
@@ -219,3 +210,4 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
 
     train_duration_sec = int(time.time() - start)
     print("training is end", train_duration_sec)
+
