@@ -10,26 +10,26 @@ Classification task: 5-class cancer subtype classification
 Data format: CSV files, referencing the MOGONET-main/BRCA dataset
 Data path: C:\Users\Tao Xuefeng\Desktop\GAN\MOGONET-main\BRCA
 
-File Structure
 edANet/classification/
 ├── datasets/
-│ ├── brca_dataset.py # BRCA dataset class
-│ └── ...
+│   ├── brca_dataset.py         
+│   └── ...
 ├── models/
-│ ├── brca_baseline.py # BRCA model definition
-│ └── ...
+│   ├── brca_baseline.py         
+│   └── ...
 ├── src/
-│ ├── brca_multi_dataloader.py # BRCA data loader
-│ ├── brca_multi_main.py # BRCA main training file
-│ └── ...
+│   ├── brca_multi_dataloader.py 
+│   ├── brca_multi_main.py       
+│   └── ...
 ├── configuration/
-│ ├── config_brca_multi.py # BRCA configuration parameters
-│ └── ...
+│   ├── config_brca_multi.py    
+│   └── ...
 ├── lib/
-│ ├── model_develop_brca.py # BRCA training function
-│ └── ...
-├── test_brca.py # System integration test
-└── simple_test.py # Simple functional test
+│   ├── model_develop_brca.py    
+│   └── ...
+├── test_brca.py                 
+└── simple_test.py               
+```
 
 Main Modifications
 
