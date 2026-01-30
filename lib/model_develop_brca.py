@@ -1,5 +1,3 @@
-"""针对 BRCA 数据集的模型训练函数"""
-
 import numpy as np
 import torch
 import torch.optim as optim
@@ -210,4 +208,5 @@ def train_base_multi_brca(model, cost, optimizer, train_loader, test_loader, sch
 
     train_duration_sec = int(time.time() - start)
     print("training is end", train_duration_sec)
+
 
