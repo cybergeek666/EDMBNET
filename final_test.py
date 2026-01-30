@@ -13,7 +13,7 @@ import os
 
 def test_chardet_solution():
     """测试使用 chardet 自动检测编码的解决方案"""
-    data_path = r'C:\Users\陶雪峰\Desktop\GAN\MOGONET-main\BRCA'
+    data_path = r'C:\Users\EDMBNET\BRCA'
 
     print("使用 chardet 自动检测编码测试...")
 
@@ -65,3 +65,4 @@ def test_chardet_solution():
 
 if __name__ == "__main__":
     encoding, data_encoding = test_chardet_solution()
+
