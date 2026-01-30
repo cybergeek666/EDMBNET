@@ -1,5 +1,3 @@
-'''模型训练相关的函数'''
-
 import numpy as np
 import torch
 import torch.optim as optim
