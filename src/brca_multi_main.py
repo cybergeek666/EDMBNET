@@ -22,36 +22,35 @@ def seed_torch(seed=0):
 
 
 def brca_main(args):
-    # 创建数据加载器
+    
     train_loader = brca_multi_dataloader(train=True, args=args)
     test_loader = brca_multi_dataloader(train=False, args=args)
 
-    # 设置日志名称
+    
     args.log_name = args.name + '.csv'
     args.model_name = args.name
 
-    # 初始化模型 - 优化后的架构
+    
     model = BRCA_Baseline(args, input_dim=[1000, 1000, 503], hidden_dim=256, num_classes=args.class_num)
 
-    # 强制使用CPU
+    
     device = torch.device('cpu')
     model.to(device)
     print("CPU is using")
 
-    # 定义损失函数和优化器 - 改进配置
+   
     criterion = nn.CrossEntropyLoss()
 
-    # 使用Adam优化器，性能更好
+   
     optimizer = optim.Adam(filter(lambda param: param.requires_grad, model.parameters()),
                           lr=args.lr, weight_decay=args.weight_decay)
 
-    # 添加学习率调度器
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.5)
 
-    # 设置训练参数
+   
     args.retrain = False
 
-    # 开始训练
+  
     train_base_multi_brca(model=model, cost=criterion, optimizer=optimizer,
                           train_loader=train_loader, test_loader=test_loader,
                           scheduler=scheduler, args=args)
@@ -59,3 +58,4 @@ def brca_main(args):
 
 if __name__ == '__main__':
     brca_main(args=args)
+
